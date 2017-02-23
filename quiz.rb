@@ -6,6 +6,7 @@ require 'catpix'
 require 'net/http'
 require_relative 'classes/progress'
 require_relative 'classes/questioner'
+require_relative 'classes/data_bot'
 
 
 
@@ -21,14 +22,6 @@ q_list = [
   "Who is most likely to fall whilst walking?"
   ]
 
-# Names of questions for reference
-q = ["Romantic", 
-     "Drama Queen", 
-     "Married", 
-     "Phobia", 
-     "Accident", 
-     "Stupidity", 
-     "Fall"]
 
 # declare arrays to store answers for each question
 ans = {
@@ -41,28 +34,18 @@ ans = {
   :q_fall => []
 }
 
+ans_title = [
+  :q_romantic,
+  :q_dqueen,
+  :q_married,
+  :q_phobia,
+  :q_accident,
+  :q_stupidity,
+  :q_fall
+]
 
-# Method to get data from google sheets
-def getData()
-  url = "https://docs.google.com/spreadsheets/d/1xBdgF6qNQWKdcydvA3PCyLJ5xFXzTmqwuqw1yyoiZfA/pub?gid=465771967&single=true&output=csv"
-  uri = URI(url)
-  response = Net::HTTP.get(uri)
-  response
-end
-
-# Method to calculate how many votes for jamie/trent. Loop through each data array
-def tallyPoints(answers)
-  count_jamie = 0
-  count_trent = 0
-  answers.each do |answer|
-    if answer == "Jamie"
-      count_jamie += 1
-    elsif answer == "Trent"
-      count_trent += 1
-    end
-  end
-  [count_jamie, count_trent]
-end
+# CHANGE THIS TO NEW SHEET ID
+sheet_id = "https://docs.google.com/spreadsheets/d/1xBdgF6qNQWKdcydvA3PCyLJ5xFXzTmqwuqw1yyoiZfA/pub?gid=465771967&single=true&output=csv"
 
 # Method to print results
 
@@ -102,7 +85,6 @@ def print_face(result)
 end
 
 
-
 # Start program
 system "clear"
 puts "Trent you're up first! Please answer the following 7 questions with either Trent or Jaime."
@@ -137,10 +119,10 @@ puts table
 # =============== Working with CSV ===================
 # Save data and parse CSV
 
-data = getData()
+d_bot1 = DataBot.new(sheet_id)
+data = d_bot1.get_data
+
 data = CSV.parse(data)
-
-
 
 
 # For each row of data, append into appropriate array
@@ -167,83 +149,28 @@ ans[:q_stupidity].shift
 ans[:q_fall].shift
 
 
-#Set the total number of votes into variable
-total_votes = ans[:q_accident].count
-
-
-# Calculate how many votes for jamie/trent. Loop through each data array
-# returns array of 2 numbers
-def tallyPoints(answers)
-  count_jamie = 0
-  count_trent = 0
-  winner = ""
-
-  answers.each do |answer|
-      if answer == "Jamie"
-          count_jamie += 1
-      elsif answer == "Trent"
-          count_trent += 1
-      end
-  end
-
-  # Add winner name to third element of output array
-  if count_jamie == count_trent
-    winner = "Tie"
-  elsif count_jamie > count_trent
-    winner = "Jamie"
-  else
-    winner = "Trent"
-  end
-
-  [count_jamie, count_trent, winner]
-end
-
 # Array that stores count for jamie and trent votes
-ans_romantic = tallyPoints(ans[:q_romantic])
-ans_dqueen = tallyPoints(ans[:q_dqueen])
-ans_married = tallyPoints(ans[:q_married])
-ans_phobia = tallyPoints(ans[:q_phobia])
-ans_accident = tallyPoints(ans[:q_accident])
-ans_stupidity = tallyPoints(ans[:q_stupidity])
-ans_fall = tallyPoints(ans[:q_fall]) # 7 20
 
-# Potentially unecessary step? Store all counts in final_answers hash
-ans_final = {
-  :total => total_votes,
-  :romantic_jamie => ans_romantic[0],
-  :romantic_trent => ans_romantic[1],
-  :dqueen_jamie => ans_dqueen[0],
-  :dqueen_trent => ans_dqueen[1],
-  :married_jamie => ans_married[0],
-  :married_trent => ans_married[1],
-  :phobia_jamie => ans_phobia[0],
-  :phobia_trent => ans_phobia[1],
-  :accident_jamie => ans_accident[0],
-  :accident_trent => ans_accident[1],
-  :stupidity_jamie => ans_stupidity[0],
-  :stupidity_trent => ans_stupidity[1],
-  :fall_jamie => ans_fall[0],
-  :fall_trent => ans_fall[1]
-}
+ans[:q_romantic] = d_bot1.count_data(ans[:q_romantic])
+ans[:q_dqueen] = d_bot1.count_data(ans[:q_dqueen])
+ans[:q_married] = d_bot1.count_data(ans[:q_married])
+ans[:q_phobia] = d_bot1.count_data(ans[:q_phobia])
+ans[:q_accident] = d_bot1.count_data(ans[:q_accident])
+ans[:q_stupidity] = d_bot1.count_data(ans[:q_stupidity])
+ans[:q_fall] = d_bot1.count_data(ans[:q_fall]) # 7 20
 
 
-# Method to puts percentage
-def get_perc(q_name, score_j, score_t, total_votes)
-  puts "PERCENTAGE FOR JAMIE #{q_name} = #{(score_j.to_f / total_votes * 100).to_i}%"
-  puts "PERCENTAGE FOR TRENT #{q_name} = #{(score_t.to_f / total_votes * 100).to_i}%"
+# Loop through things
+i = 0
+q.each do |category|
+  puts "#{q_list[i]}:"
+  puts "Jamie: #{ans[ans_title[i]][0]}"
+  puts "Trent: #{ans[ans_title[i]][1]}"
+  i += 1
 end
 
 
-get_perc(q[0],ans_final[:romantic_jamie], ans_final[:romantic_trent],ans_final[:total])
-get_perc(q[1],ans_final[:dqueen_jamie], ans_final[:dqueen_trent],ans_final[:total])
-get_perc(q[2],ans_final[:married_jamie], ans_final[:married_trent],ans_final[:total])
-get_perc(q[3],ans_final[:phobia_jamie], ans_final[:phobia_trent],ans_final[:total])
-get_perc(q[4],ans_final[:accident_jamie], ans_final[:accident_trent],ans_final[:total])
-get_perc(q[5],ans_final[:stupidity_jamie], ans_final[:stupidity_trent],ans_final[:total])
-get_perc(q[6],ans_final[:fall_jamie], ans_final[:fall_trent],ans_final[:total])
-
-
-print_face(ans_dqueen[2])
+# print_face(ans_dqueen[2])
 
 
 
