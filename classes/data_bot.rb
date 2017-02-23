@@ -1,8 +1,4 @@
 require 'net/http'
-# Gets data DONE
-# counts DONE
-# get percentage
-# prints photo
 
 
 class DataBot
@@ -50,6 +46,43 @@ class DataBot
 	  end
 
 	  ["#{@count_jamie}%", "#{@count_trent}%", @winner]
+	end
+
+	# Method to print results
+
+	def print_face(result)
+	  
+	  # Print face for Jamie
+	  if result == "Trent"
+	    Catpix::print_image "../img/Trent.png",
+	      :limit_x => 1.0,
+	      :limit_y => 1,
+	      :center_x => true,
+	      :center_y => true,
+	      :bg => "black",
+	      :bg_fill => true,
+	      :resolution => "high"
+	  # Print face for Trent
+	  elsif result == "Jamie"
+	    Catpix::print_image "../img/Jamie.png",
+	      :limit_x => 1.0,
+	      :limit_y => 1,
+	      :center_x => true,
+	      :center_y => true,
+	      :bg => "black",
+	      :bg_fill => true,
+	      :resolution => "high"
+	  # Print face for Both
+	  else
+	    Catpix::print_image "../img/jamie-trent-together.png",
+	      :limit_x => 1.0,
+	      :limit_y => 1,
+	      :center_x => true,
+	      :center_y => true,
+	      :bg => "black",
+	      :bg_fill => true,
+	      :resolution => "high"
+	  end
 	end
 end
 
