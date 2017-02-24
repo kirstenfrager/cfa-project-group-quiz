@@ -1,5 +1,12 @@
 require 'net/http'
 
+# Databot class is able to:
+ # get_data gets google sheet data
+ # count_data takes in answers for each questions
+ 		# tallies votes for trent/jamie
+ 		# converts into percentage
+ 		# outputs winner name
+ # Prints photo based on winner
 
 class DataBot
 	def initialize(url)
@@ -54,9 +61,9 @@ class DataBot
 	  
 	  # Print face for Jamie
 	  if result == "Trent"
-	    Catpix::print_image "../img/Trent.png",
+	    Catpix::print_image "img/Trent.png",
 	      :limit_x => 1.0,
-	      :limit_y => 1,
+	      :limit_y => 0,
 	      :center_x => true,
 	      :center_y => true,
 	      :bg => "black",
@@ -64,9 +71,9 @@ class DataBot
 	      :resolution => "high"
 	  # Print face for Trent
 	  elsif result == "Jamie"
-	    Catpix::print_image "../img/Jamie.png",
+	    Catpix::print_image "img/Jamie.png",
 	      :limit_x => 1.0,
-	      :limit_y => 1,
+	      :limit_y => 0,
 	      :center_x => true,
 	      :center_y => true,
 	      :bg => "black",
@@ -74,9 +81,9 @@ class DataBot
 	      :resolution => "high"
 	  # Print face for Both
 	  else
-	    Catpix::print_image "../img/jamie-trent-together.png",
+	    Catpix::print_image "img/Jamie_main.png",
 	      :limit_x => 1.0,
-	      :limit_y => 1,
+	      :limit_y => 0,
 	      :center_x => true,
 	      :center_y => true,
 	      :bg => "black",
